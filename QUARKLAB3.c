@@ -13,11 +13,23 @@ char *progScanner(FILE *input);
 char *qstrcpy (char *dest, const char *src);
 char *qstrncpy (char *dest, const char *src, size_t n);
 char *regNumberConverter(char *instr);
+struct instruction parser(char *inst);
 
 /***************************************************************************
 Enumerations
 ***************************************************************************/
 enum OPCODE {ADD, SUB, ADDI, MUL, LW, SW, BEQ, HALT};
+
+/**************************************************************************
+Structures
+***************************************************************************/
+struct instruction {
+    enum OPCODE opcode;
+    int rs;
+    int rt;
+    int rd;
+    int immediate;
+};
 
 
 
@@ -26,9 +38,12 @@ int main(int argc, char **argv){
   FILE *input = fopen("/Users/rickbrownscomputer/Desktop/inst.txt", "r");
   char *inst;
   char *inst2;
+  struct instruction inst3;
   inst = progScanner(input);
   inst2 = regNumberConverter(inst);
-  printf("%s", inst);
+  inst3 = parser(inst2);
+
+  printf("%d", inst3.opcode);
 
 
 
@@ -279,4 +294,94 @@ char *regNumberConverter(char *inst){
 
   }
   return inst;
+}
+
+struct instruction parser(char *inst){
+  char **tokens = malloc(sizeof(char*) * 4);
+  int count = 0;
+  char *lp, *rp;
+  rp = qstrchr(inst, ' ');
+  lp = inst;
+  struct instruction output;
+
+  do{
+    char *str = malloc(sizeof(char) * (rp - lp + 1));
+    qstrncpy(str, inst, rp - lp);
+    str[rp - lp] = '\0';
+    tokens[count] = str;
+    inst = rp + 1;
+    ++count;
+  }
+    while((rp = qstrchr(inst, ' ')));
+    tokens[count++] = inst;
+
+    assert(count == 4);
+    assert(tokens[1][0] == '$');
+    tokens[1] = &tokens[1][1];
+if(strcmp(tokens[0], "add") == 0 || strcmp(tokens[0], "sub") == 0 ||strcmp(tokens[0], "mul") == 0){
+    if(strcmp(tokens[0], "add") == 0)
+      output.opcode = ADD;
+
+    else if(strcmp(tokens[0], "sub") == 0)
+      output.opcode = SUB;
+
+    else if(strcmp(tokens[0], "mul") == 0)
+      output.opcode = MUL;
+
+    output.rd = atoi(tokens[1]);
+
+    assert(tokens[2][0] == '$');
+    output.rs = atoi(&tokens[2][1]);
+    assert(tokens[3][0] == '$');
+    output.rt = atoi(&tokens[3][1]);
+  }
+
+  else if(strcmp(tokens[0], "beq") == 0){
+    output.opcode = BEQ;
+    output.rs = atoi(tokens[1]);
+    assert(tokens[2][0] == '$');
+    output.rt = atoi(&tokens[2][1]);
+    output.immediate = atoi(tokens[3]);
+
+    assert(output.immediate >= 0);
+    assert(output.immediate < 0xFFFF);
+
+  }
+
+ else if(strcmp(tokens[0], "addi") == 0){
+   output.opcode = ADDI;
+   output.rt = atoi(tokens[1]);
+   assert(tokens[2][0] == '$');
+   output.rs = atoi(&tokens[2][1]);
+   output.immediate = atoi(tokens[3]);
+   assert(output.immediate >= 0);
+   assert(output.immediate < 0xFFFF);
+
+
+ }
+
+ else if(strcmp(tokens[0], "lw") == 0 || strcmp(tokens[0], "sw") == 0){
+   if(strcmp(tokens[0], "lw") == 0)
+     output.opcode = LW;
+
+    if(strcmp(tokens[0], "sw") == 0)
+      output.opcode = SW;
+
+    output.rt = atoi(tokens[1]);
+
+    assert(tokens[2][0] != '$');
+    output.immediate = atoi(tokens[2]);
+
+    assert(tokens[3][0] == '$');
+    output.rs = atoi(&tokens[3][1]);
+
+    assert(output.immediate >= 0);
+    assert(output.immediate < 0xFFFF);
+
+
+
+
+ }
+
+  return output;
 }

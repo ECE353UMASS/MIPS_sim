@@ -54,7 +54,6 @@ struct latch {
   int rs, rt, rd, immediate;
   int result;
 };
-
 /*************************************************************************
 Global Variables
 **************************************************************************/
@@ -79,29 +78,27 @@ int mips_reg[REG_NUM]; //array of MIPS registers
 int DMEM[2048]; //data memory
 
 
-
-
-
-
 int main (int argc, char *argv[]){
-	int sim_mode = 0;//mode flag, 1 for single-cycle, 0 for batch
+	int sim_mode = 0; //mode flag, 1 for single-cycle, 0 for batch
 	int i;//for loop counter
 
 	int test_counter = 0;
-	FILE *input = NULL;
-	FILE *output = NULL;
-	printf("The arguments are:");
+        FILE *input = NULL;
+        FILE *output = NULL;
 
-	for(i = 1;i < argc; i++){
+	//FILE *input = fopen("C:\\Users\\Omar\\Documents\\comp_sys_353\\sample_easy_ver.txt", "r");
+	//FILE *output = fopen("C:\\Users\\Omar\\Documents\\comp_sys_353\\output.txt", "w");
+
+	for(i = 1; i < argc; i++){
 		printf("%s ",argv[i]);
 	}
 	printf("\n");
 	if(argc==7){
 		if(strcmp("-s",argv[1]) == 0){
-			sim_mode=SINGLE;
+			sim_mode = SINGLE;
 		}
 		else if(strcmp("-b",argv[1]) == 0){
-			sim_mode=BATCH;
+			sim_mode = BATCH;
 		}
 		else{
 			printf("Wrong sim mode chosen\n");
@@ -117,7 +114,7 @@ int main (int argc, char *argv[]){
 	}
 
 	else{
-		printf("Usage: ./sim-mips -s m n c input_name output_name (single-sysle mode)\n or \n ./sim-mips -b m n c input_name  output_name(batch mode)\n");
+		printf("Usage: ./sim-mips -s m n c input_name output_name (single-cycle mode)\n or \n ./sim-mips -b m n c input_name  output_name(batch mode)\n");
 		printf("m,n,c stand for number of cycles needed by multiplication, other operation, and memory access, respectively\n");
 		exit(0);
 	}
